@@ -1,4 +1,7 @@
-import { Scenes, Markup } from 'telegraf'
+import { Scenes, Markup, Format } from 'telegraf'
+import PasswordGenerator from '../modules/password-generator'
+import { PasswordGeneratorCallbackData } from '../enums/enums'
+import bot from '../configs/bot.config'
 
 export namespace BaseScenes {
     export const Start : any = () => {
@@ -25,7 +28,8 @@ export namespace BaseScenes {
         SetPasswordLengthScene.enter(ctx => {
             ctx.reply("Please enter your password length: ")
             SetPasswordLengthScene.on('text', ctx => {
-                ctx['session'].passwordLength = parseInt(ctx.message.text)
+                if (!isNaN(Number(ctx.message.text))) ctx['session'].passwordLength = parseInt(ctx.message.text)
+                else ctx['session'].passwordLength = 8
                 return ctx.scene.leave()
             })
         })
@@ -33,42 +37,41 @@ export namespace BaseScenes {
 
         return SetPasswordLengthScene
     }
-
-    // export const GeneratePassword : any = () => {
-    //     const GeneratePasswordScene = new Scenes.BaseScene<any>('Wizard-Hear/GeneratePassword')
-
-    //     GeneratePasswordScene.enter(ctx => {
-    //         ctx.reply(
-    //             "What password to generate?",
-    //             {
-    //                 reply_markup: {
-    //                     inline_keyboard: [
-    //                         [ { text: "Word", callback_data: "generate-password--word" }, { text: "Number", callback_data: "generate-password--number" } ],
-    //                         [ { text: "Character", callback_data: "generate-password--char" } ]
-    //                     ]
-    //                 }
-    //             }
-    //         )
-    //     })
-
-    //     return GeneratePasswordScene
-    // }
 }
 
 export namespace WizardScenes {
     export const GeneratePassword = new Scenes.WizardScene<any>('Wizard-Hear/GeneratePassword',
-        ctx => {
-            ctx.reply(
+        async ctx => {
+            await ctx.reply(
                 "What password to generate?",
                 {
                     reply_markup: {
                         inline_keyboard: [
-                            [ { text: "Word", callback_data: "generate-password--word" }, { text: "Number", callback_data: "generate-password--number" } ],
-                            [ { text: "Character", callback_data: "generate-password--char" } ]
+                            [ { text: "Word", callback_data: PasswordGeneratorCallbackData.WORD }, { text: "Number", callback_data: PasswordGeneratorCallbackData.NUMBER } ],
+                            [ { text: "Character", callback_data: PasswordGeneratorCallbackData.CHARACTER } ]
                         ]
                     }
                 }
             )
+
+            ctx.wizard.state.data = { chatId: ctx.chat.id, inputMessageId: ctx.message.message_id }
+            return ctx.wizard.next()
+        },
+        async ctx => {
+            const generator = new PasswordGenerator(ctx.session.passwordLength)
+
+            if (ctx.callbackQuery) {
+                if (ctx.callbackQuery.data == PasswordGeneratorCallbackData.WORD) generator.generateWord()
+                if (ctx.callbackQuery.data == PasswordGeneratorCallbackData.NUMBER) generator.generateNumber()
+                if (ctx.callbackQuery.data == PasswordGeneratorCallbackData.CHARACTER) generator.generateChar()
+
+                ctx.reply(Format.code(generator.password))
+            } else ctx.wizard.step[0]
+
+            if (generator.password != '' && generator.password != null) {
+                bot.telegram.deleteMessage(ctx.wizard.state.data.chatId, ctx.wizard.state.data.inputMessageId + 1)
+                ctx.scene.leave()
+            }
         }
     )
 }

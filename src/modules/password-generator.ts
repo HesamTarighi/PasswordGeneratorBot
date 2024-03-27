@@ -1,10 +1,13 @@
 class PasswordGenerator {
     public password : string
+    protected passwordLength : number
     private words : string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     private chars : string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&?."
 
-    constructor () {
+    constructor (passwordLength? : number) {
         this.cleanPassword()
+
+        this.passwordLength = passwordLength && !isNaN(passwordLength) ? passwordLength : 8
     }
 
     private generateRandomNumber (max : number) : number {
@@ -15,34 +18,34 @@ class PasswordGenerator {
         this.password = ""
     }
 
-    protected customPassword (password : string) : void {
+    public customPassword (password : string) : void {
         this.password = password
     }
 
-    protected generateWord (length = 8) : void {
+    public generateWord () : void {
         this.cleanPassword()
 
-        if (length < 8) console.error("The length of the number must be greater than 7")
+        if (this.passwordLength < 8) console.error("The length of the number must be greater than 7")
         else {
-            for (let i = 0; i < length; i++) this.password += this.words[this.generateRandomNumber(this.words.length)]
+            for (let i = 0; i < this.passwordLength; i++) this.password += this.words[this.generateRandomNumber(this.words.length)]
         }
     }
 
-    protected generateNumber (length = 8) : void {
+    public generateNumber () : void {
         this.cleanPassword()
 
-        if (length < 8) console.error("The length of the number must be greater than 7")
+        if (this.passwordLength < 8) console.error("The length of the number must be greater than 7")
         else {
-            for (let i = 0; i < length; i++) this.password += this.generateRandomNumber(10).toString()
+            for (let i = 0; i < this.passwordLength; i++) this.password += this.generateRandomNumber(10).toString()
         }
     }
 
-    protected generateChar (length = 8) : void {
+    public generateChar () : void {
         this.cleanPassword()
 
-        if (length < 8) console.error("The length of the number must be greater than 7")
+        if (this.passwordLength < 8) console.error("The length of the number must be greater than 7")
         else {
-            for (let i = 0; i < length; i++) this.password += this.chars[this.generateRandomNumber(this.chars.length)]
+            for (let i = 0; i < this.passwordLength; i++) this.password += this.chars[this.generateRandomNumber(this.chars.length)]
         }
     }
 }

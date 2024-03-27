@@ -3,12 +3,8 @@
     {
       "id": "554983957:554983957",
       "data": {
-        "passwordLength": 22,
-        "__scenes": {
-          "current": "Wizard-Hear/GeneratePassword",
-          "state": {},
-          "cursor": 0
-        }
+        "passwordLength": 155,
+        "__scenes": {}
       }
     }
   ]
