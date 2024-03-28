@@ -47,8 +47,8 @@ export namespace WizardScenes {
                 {
                     reply_markup: {
                         inline_keyboard: [
-                            [ { text: "Word", callback_data: PasswordGeneratorCallbackData.WORD }, { text: "Number", callback_data: PasswordGeneratorCallbackData.NUMBER } ],
-                            [ { text: "Character", callback_data: PasswordGeneratorCallbackData.CHARACTER } ]
+                            [ { text: "Word", callback_data: PasswordGeneratorCallbackData.WORD }, { text: "Number", callback_data: PasswordGeneratorCallbackData.NUMBER }, { text: "Character", callback_data: PasswordGeneratorCallbackData.CHARACTER } ],
+                            [ { text: "Cancel", callback_data: PasswordGeneratorCallbackData.CANCEL } ]
                         ]
                     }
                 }
@@ -58,20 +58,26 @@ export namespace WizardScenes {
             return ctx.wizard.next()
         },
         async ctx => {
-            const generator = new PasswordGenerator(ctx.session.passwordLength)
+            const generator : any = new PasswordGenerator(ctx.session.passwordLength)
+
+            function cancel () : void {
+                bot.telegram.deleteMessage(ctx.wizard.state.data.chatId, ctx.wizard.state.data.inputMessageId + 1)
+                ctx.scene.leave()
+            }
 
             if (ctx.callbackQuery) {
                 if (ctx.callbackQuery.data == PasswordGeneratorCallbackData.WORD) generator.generateWord()
                 if (ctx.callbackQuery.data == PasswordGeneratorCallbackData.NUMBER) generator.generateNumber()
                 if (ctx.callbackQuery.data == PasswordGeneratorCallbackData.CHARACTER) generator.generateChar()
+                if (ctx.callbackQuery.data == PasswordGeneratorCallbackData.CANCEL) {
+                    cancel()
+                    return
+                }
 
                 ctx.reply(Format.code(generator.password))
-            } else ctx.wizard.step[0]
+            } else cancel()
 
-            if (generator.password != '' && generator.password != null) {
-                bot.telegram.deleteMessage(ctx.wizard.state.data.chatId, ctx.wizard.state.data.inputMessageId + 1)
-                ctx.scene.leave()
-            }
+            if (generator.password != '' && generator.password != null) cancel()
         }
     )
 }

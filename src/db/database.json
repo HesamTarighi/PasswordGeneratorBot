@@ -1,11 +1,3 @@
 {
-  "sessions": [
-    {
-      "id": "554983957:554983957",
-      "data": {
-        "passwordLength": 155,
-        "__scenes": {}
-      }
-    }
-  ]
+  "sessions": []
 }
