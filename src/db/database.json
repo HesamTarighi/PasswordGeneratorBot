@@ -1,3 +1,20 @@
 {
-  "sessions": []
+  "sessions": [
+    {
+      "id": "554983957:554983957",
+      "data": {
+        "passwordLength": 18,
+        "__scenes": {
+          "current": "Wizard-Hear/GeneratePassword",
+          "state": {
+            "data": {
+              "chatId": 554983957,
+              "inputMessageId": 1222
+            }
+          },
+          "cursor": 1
+        }
+      }
+    }
+  ]
 }
